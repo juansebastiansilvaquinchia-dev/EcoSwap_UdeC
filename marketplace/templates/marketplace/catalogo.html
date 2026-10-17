@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold text-success">Catálogo de Productos - EcoSwap UdeC</h1>
+        <a href="/admin/marketplace/producto/add/" class="btn btn-primary" target="_blank">
+            + Publicar Producto
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for producto in productos %}
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.titulo }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-muted">Sin imagen</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <span class="badge bg-secondary mb-2">{{ producto.get_estado_display }}</span>
+                        <h5 class="card-title text-dark">{{ producto.titulo }}</h5>
+                        <p class="card-text text-muted small">{{ producto.descripcion|truncatewords:15 }}</p>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Publicado por: <strong>{{ producto.usuario.username }}</strong></small>
+                        <button class="btn btn-outline-success btn-sm">Proponer Trueque</button>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">Aún no hay productos publicados en el catálogo.</p>
+                <p class="small text-muted">Ingresa al panel de administración para agregar los primeros artículos.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

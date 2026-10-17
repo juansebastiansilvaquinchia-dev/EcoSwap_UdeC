@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio — EcoSwap UdeC{% endblock %}
+
+{% block contenido %}
+
+<!-- Hero Banner Limpio, Elegante y Legible -->
+<div class="card card-hologram border-0 text-white mb-5 p-4 p-md-5 position-relative overflow-hidden" 
+     style="background: linear-gradient(135deg, #004d25 0%, #006837 50%, #00b050 100%);">
+    
+    <!-- Patrón sutil de puntos de fondo -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" 
+         style="background-image: radial-gradient(#00e676 1px, transparent 1px); background-size: 20px 20px;">
+    </div>
+
+    <div class="row align-items-center position-relative z-1">
+        <div class="col-lg-8">
+            <span class="badge px-3 py-2 mb-3 rounded-pill fw-bold shadow-sm" style="background: rgba(255,255,255,0.2); color: #ffffff;">
+                <i class="bi bi-shield-check me-1"></i> Universidad de Cundinamarca
+            </span>
+            <h1 class="fw-bold display-5 mb-3 text-white">
+                Intercambia bienes <br><span style="color: #00ff88;">sin dinero</span>
+            </h1>
+            <p class="lead mb-4 text-white-50 fs-6">
+                La forma más viva y sostenible de renovar tus libros, aparatos tecnológicos y accesorios en el campus.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="/admin/" class="btn btn-glow px-4 py-2 text-decoration-none">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Publicar un Bien
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4 text-center d-none d-lg-block">
+            <i class="bi bi-recycle display-1 text-white opacity-25"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Buscador Tridimensional Elevado -->
+<div class="mb-5">
+    <div class="position-relative mb-4">
+        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-4 text-success fs-5"></i>
+        <input type="text" id="inputBuscador" class="form-control py-3 ps-5 pe-4 border-0 shadow-lg" 
+               style="border-radius: 30px; background: #ffffff;" 
+               placeholder="¿Qué estás buscando para intercambiar hoy?...">
+    </div>
+
+    <!-- Categorías Interactivas Dinámicas desde Django -->
+    <div class="d-flex gap-2 overflow-x-auto pb-2 category-filters">
+        <!-- Botón para ver Todos los productos -->
+        <a href="{% url 'lista_productos' %}" 
+           class="btn {% if not categoria_actual %}btn-glow shadow active{% else %}btn-white bg-white text-dark fw-semibold shadow-sm border{% endif %} px-4 py-2 text-decoration-none rounded-pill">
+            <i class="bi bi-collection-fill me-1 {% if not categoria_actual %}text-white{% else %}text-success{% endif %}"></i> Todos
+        </a>
+
+        <!-- Botones dinámicos basados en la tabla Categoria de la base de datos -->
+        {% for cat in categorias %}
+            <a href="{% url 'lista_productos' %}?categoria={{ cat.id }}" 
+               class="btn {% if categoria_actual == cat.id|stringformat:'s' %}btn-glow shadow active{% else %}btn-white bg-white text-dark fw-semibold shadow-sm border{% endif %} px-4 py-2 text-decoration-none rounded-pill text-nowrap">
+                <i class="bi bi-tag-fill me-1 {% if categoria_actual == cat.id|stringformat:'s' %}text-white{% else %}text-success{% endif %}"></i> {{ cat.nombre }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Grilla de Productos -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold m-0 text-dark">
+        <i class="bi bi-lightning-charge-fill text-warning"></i> Recomendados en Tendencia
+    </h4>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="gridProductos">
+    {% for producto in productos %}
+    <div class="col item-producto" 
+         data-titulo="{{ producto.titulo|lower }}" 
+         data-descripcion="{{ producto.descripcion|lower }}"
+         data-categoria="{{ producto.categoria.id }}">
+        <div class="card card-hologram h-100 overflow-hidden">
+            <div class="position-relative overflow-hidden" style="height: 200px; background: #e2e8f0;">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" class="w-100 h-100 object-fit-cover" alt="{{ producto.titulo }}">
+                {% else %}
+                    <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                        <i class="bi bi-box-seam display-4 opacity-50"></i>
+                    </div>
+                {% endif %}
+                <span class="position-absolute top-0 end-0 m-3 badge rounded-pill px-3 py-2 shadow" style="background: rgba(0, 56, 30, 0.85); color: #00ff75;">
+                    {{ producto.estado|default:"Usado" }}
+                </span>
+            </div>
+
+            <div class="card-body d-flex flex-column p-4">
+                <h5 class="fw-bold text-dark mb-2 text-truncate">{{ producto.titulo }}</h5>
+                <p class="text-muted small mb-3 text-truncate">
+                    <i class="bi bi-arrow-left-right text-success fw-bold me-1"></i> {{ producto.descripcion|truncatewords:5 }}
+                </p>
+                <div class="mt-auto">
+                    <button class="btn btn-glow w-100 py-2 btn-interesado">
+                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> Interesarme
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5" id="mensajeVacio">
+        <div class="card card-hologram border-0 p-5 bg-white mx-auto" style="max-width: 500px;">
+            <i class="bi bi-box2-heart display-1 text-success opacity-50 mb-3"></i>
+            <h5 class="fw-bold text-dark">Aún no hay bienes registrados en esta categoría</h5>
+            <p class="text-muted small mb-4">Intenta explorar otra categoría o publicar un bien nuevo desde el panel de administración.</p>
+            <a href="/admin/" class="btn btn-glow px-4 py-2 mx-auto text-decoration-none">
+                <i class="bi bi-plus-lg me-1"></i> Ir al Panel Admin
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- JavaScript para Interactividad Completa -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Buscador en tiempo real
+    const searchInput = document.getElementById("inputBuscador");
+    const productos = document.querySelectorAll(".item-producto");
+
+    if (searchInput) {
+        searchInput.addEventListener("keyup", function() {
+            const query = this.value.toLowerCase().trim();
+            
+            productos.forEach(prod => {
+                const titulo = prod.getAttribute("data-titulo") || "";
+                const desc = prod.getAttribute("data-descripcion") || "";
+                
+                if (titulo.includes(query) || desc.includes(query)) {
+                    prod.style.display = "block";
+                } else {
+                    prod.style.display = "none";
+                }
+            });
+        });
+    }
+
+    // 2. Feedback visual al pulsar "Interesarme"
+    const btnInteresados = document.querySelectorAll(".btn-interesado");
+    btnInteresados.forEach(btn => {
+        btn.addEventListener("click", function() {
+            if (this.classList.contains("btn-glow")) {
+                this.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ¡Interés Enviado!';
+                this.classList.remove("btn-glow");
+                this.classList.add("btn-success");
+            } else {
+                this.innerHTML = '<i class="bi bi-hand-thumbs-up-fill me-1"></i> Interesarme';
+                this.classList.remove("btn-success");
+                this.classList.add("btn-glow");
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}
